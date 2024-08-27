@@ -1,17 +1,19 @@
 # Notes
 
-Server-Side State Management -
+Server-Side State Management
 
-React Query
+    * React Query
 
-Apollo
+    * Apollo
 
-RTK Query
+    * RTK Query
 
-Client-side State Management:
+Client-Side State Management
 
-Zustand - <https://zustand.docs.pmnd.rs/getting-started/introduction>
+    * Zustand - <https://zustand.docs.pmnd.rs/getting-started/introduction>
 
-Redux - <https://redux.js.org/>
+    * Redux - <https://redux.js.org/>
 
-React Context API
+    * React Context API
+
+React Docs - <https://react.dev/learn/>
