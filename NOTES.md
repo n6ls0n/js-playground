@@ -17,3 +17,5 @@ Client-Side State Management
     * React Context API
 
 React Docs - <https://react.dev/learn/>
+
+HTMX <https://htmx.org/>
