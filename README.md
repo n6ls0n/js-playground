@@ -2,6 +2,10 @@
 
 A repo to test out various things in and around Javascript and Typescript
 
-src/ - A bare-bones React App to start projects from
+src/
 
-react-docs/ - A Typescript port of the docs at <https://react.dev/learn>
+- A bare-bones React App to start projects from
+
+react-docs/
+
+- A Typescript port of the docs at <https://react.dev/learn>
