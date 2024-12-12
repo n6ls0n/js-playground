@@ -1,9 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-
-const App: React.FC = () => {
-  return <h1>Hello, TypeScript React!</h1>;
-};
+import App from './App'; // Import the App component
 
 const container = document.getElementById('root');
 if (container) {
