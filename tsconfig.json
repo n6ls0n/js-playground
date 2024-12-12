@@ -20,6 +20,7 @@
     "*.config.js",
     "src/tests/**/*",
     "dist/**/*",
-    "src/temp*.js"
+    "src/temp*.js",
+    "react-docs/**/*",
   ]
 }
