@@ -23,3 +23,10 @@ type NetworkInterfaceInfo = {
 type NetworkInterfaces = {
   [key: string]: NetworkInterfaceInfo[];
 };
+
+
+/**
+ *  Logging
+ */
+// require('dotenv').config();
+// const debug = require('debug')(process.env.DEBUG);
