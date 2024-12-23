@@ -2,7 +2,7 @@ import { JSX } from 'react/jsx-runtime';
 
 // ############# Pro-tip: Use a JSX Converter #############
 
-// export default function TodoList() {
+// export default function TodoList(): JSX.Element {
 //     return (
 //         <>
 //         <h1> Hedy Lamar's Todos </h1>
@@ -22,7 +22,7 @@ import { JSX } from 'react/jsx-runtime';
 
 // ############# Challenge 1 Solution #############
 
-export default function Bio() {
+export default function Bio(): JSX.Element {
     return (
         <>
       <div className="intro">
@@ -36,3 +36,4 @@ export default function Bio() {
       </>
     );
 }
+
