@@ -22,5 +22,6 @@
     "dist/**/*",
     "src/temp*.js",
     "react-docs/**/*",
+    "https-server/**/*",
   ]
 }
