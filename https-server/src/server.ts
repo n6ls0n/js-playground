@@ -30,3 +30,15 @@ type NetworkInterfaces = {
  */
 // require('dotenv').config();
 // const debug = require('debug')(process.env.DEBUG);
+
+
+/**
+ *  Imports
+ */
+const networkInterfaces: NetworkInterfaces = require('os').networkInterfaces(); // Get network interfaces for this machine
+const fs = require('fs');
+const express = require('express');
+const logger = require('morgan');
+import * as https from 'https';
+import { Request, Response, NextFunction, Application } from 'express';
+import createHttpError from 'http-errors';
