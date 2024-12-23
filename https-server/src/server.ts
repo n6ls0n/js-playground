@@ -42,3 +42,11 @@ const logger = require('morgan');
 import * as https from 'https';
 import { Request, Response, NextFunction, Application } from 'express';
 import createHttpError from 'http-errors';
+
+/**
+ *  SSL Setup
+ */
+const path = require('path');
+const ssl_folder = path.join(__dirname, 'ssl_certs');
+const key_path = path.join(ssl_folder, 'localhost.key');
+const cert_path = path.join(ssl_folder, 'localhost.crt');
