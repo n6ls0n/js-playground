@@ -12,4 +12,8 @@ react-docs/
 
 https-server/
 
-- A simple, extensible https server written in Express and Typescript
+- A simple, extensible https server written with Express and Typescript
+
+sockets-server/
+
+- A simple, extensible socket server & client written with socket.io and Typescript
