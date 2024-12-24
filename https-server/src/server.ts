@@ -50,3 +50,17 @@ const path = require('path');
 const ssl_folder = path.join(__dirname, 'ssl_certs');
 const key_path = path.join(ssl_folder, 'localhost.key');
 const cert_path = path.join(ssl_folder, 'localhost.crt');
+
+
+/**
+ *  Server Initializations
+ */
+const express_app = express(); // Create an Express app
+const https_server = createHttpsServer(express_app); // Create a HTTPS server and attach the Express app
+const port = 3000;
+const public_dir = __dirname; // Set the public directory to serve from
+const config: ServerConfig = {
+  protocol: 'https',
+  key: fs.readFileSync(key_path),
+  cert: fs.readFileSync(cert_path),
+};
