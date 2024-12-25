@@ -28,8 +28,8 @@ type NetworkInterfaces = {
 /**
  *  Logging
  */
-// require('dotenv').config();
-// const debug = require('debug')(process.env.DEBUG);
+require('dotenv').config();
+const debug = require('debug')(process.env.DEBUG);
 
 
 /**
@@ -64,3 +64,108 @@ const config: ServerConfig = {
   key: fs.readFileSync(key_path),
   cert: fs.readFileSync(cert_path),
 };
+
+
+/**
+ *  Express Setup
+ */
+express_app.use(logger('dev')); // Log activity to the console
+express_app.use(express.static(public_dir)); // Serve static files from the script directory
+
+// Catch 404 errors and forward them to error handler
+express_app.use(function(req: Request, res: Response, next: NextFunction) {
+  next(createHttpError(404));
+});
+
+// Handle errors with the error handler
+express_app.use(function(err: createHttpError.HttpError, req: Request, res: Response, next: NextFunction) {
+  // Set the error code
+  res.status(err.status || 500);
+  // Respond with a static error page (404 or 500)
+  res.sendFile(`error/${err.status}.html`, { root: __dirname });
+});
+
+/**
+ *  HTTPS Server Function Definitions
+ */
+
+/**
+ * Creates a HTTPS server and attaches the Express app to it.
+ *
+ * @param {Application} express_app - The Express app to attach to the server.
+ * @returns {https.Server} The HTTPS server.
+ * @throws {Error} If there is an error creating the server.
+ */
+function createHttpsServer(express_app: Application): https.Server {
+  try {
+    const server = require(config.protocol).createServer({key: config.key, cert: config.cert}, express_app);
+    return server;
+  } catch(e) {
+    console.error(e);
+    process.exit(1);
+  }
+}
+
+/**
+ * Handle errors from the HTTPS server.
+ *
+ * This function is called when the HTTPS server encounters an error
+ * while listening on a port. If the error is not a listen error, it
+ * is re-thrown. If the error is a listen error, the function prints
+ * an error message (depending on the error code) and exits the
+ * process with a status code of 1.
+ *
+ * @param {NodeJS.ErrnoException} error - the error from the HTTPS server.
+ */
+function handleError(error: NodeJS.ErrnoException) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  switch (error.code) {
+  case 'EADDRINUSE':
+    console.error(`Port ${port} is already being used`);
+    process.exit(1);
+    break;
+  case 'EACCES':
+    console.error(`Port ${port} requires elevated user privileges (sudo)`);
+    process.exit(1);
+    break;
+  default:
+    throw error;
+  }
+}
+
+function handleListening() {
+  const address = https_server.address();
+  const interfaces: string[] = [];
+  // dev holds all the network interfaces on which the server is listening
+  // details holds all the details for each object on that interface
+  Object.keys(networkInterfaces).forEach(function(dev) {
+    networkInterfaces[dev].forEach(function(details) {
+      /**
+       * Node v. 18+ returns a number (4, 6) for family;
+       * earlier versions returned IPv4 or IPv6. This handles
+       * both cases.
+       */
+      if (details.family.toString().endsWith('4')) {
+        interfaces.push(`-> ${config.protocol}://${details.address}:${port}/`);
+      }
+    });
+  });
+  debug(
+    `  ** Serving from the ${public_dir}/ directory. **
+
+  App available in your browser at:
+
+    ${interfaces.join('\n    ')}
+
+  Hold CTRL + C to stop the server.\n\n `
+  );
+}
+
+
+express_app.set('port', port);
+https_server.listen(port);
+https_server.on('error', handleError);
+https_server.on('listening', handleListening);
