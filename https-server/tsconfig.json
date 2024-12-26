@@ -12,6 +12,7 @@
         "ES2017",
         "dom"
       ],
+      "outDir": "./dist",
       "rootDir": "src",
       "moduleResolution": "node"
     },
@@ -20,5 +21,6 @@
     "*.config.js",
     "src/tests/**/*",
     "dist/**/*",
-  ]
+  ],
+  "include": ["src/server/**/*"]
 }
