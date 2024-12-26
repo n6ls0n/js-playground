@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 
-/**
- *  Types
- */
+// ############### Types ###############
+
 type Protocol = 'https';
 type ServerConfig = {
   protocol: Protocol,
@@ -25,16 +24,14 @@ type NetworkInterfaces = {
 };
 
 
-/**
- *  Logging
- */
+// ############### Logging ###############
+
 require('dotenv').config();
 const debug = require('debug')(process.env.DEBUG);
 
 
-/**
- *  Imports
- */
+// ############### Imports ###############
+
 const networkInterfaces: NetworkInterfaces = require('os').networkInterfaces(); // Get network interfaces for this machine
 const fs = require('fs');
 const express = require('express');
@@ -43,18 +40,16 @@ import * as https from 'https';
 import { Request, Response, NextFunction, Application } from 'express';
 import createHttpError from 'http-errors';
 
-/**
- *  SSL Setup
- */
+// ############### SSL Setup ###############
+
 const path = require('path');
 const ssl_folder = path.join(__dirname, 'ssl_certs');
 const key_path = path.join(ssl_folder, 'localhost.key');
 const cert_path = path.join(ssl_folder, 'localhost.crt');
 
 
-/**
- *  Server Initializations
- */
+// ############### Server Initialization ###############
+
 const express_app = express(); // Create an Express app
 const https_server = createHttpsServer(express_app); // Create a HTTPS server and attach the Express app
 const port = 3000;
@@ -66,9 +61,8 @@ const config: ServerConfig = {
 };
 
 
-/**
- *  Express Setup
- */
+// ############### Express Setup ###############
+
 express_app.use(logger('dev')); // Log activity to the console
 express_app.use(express.static(public_dir)); // Serve static files from the script directory
 
@@ -79,15 +73,12 @@ express_app.use(function(req: Request, res: Response, next: NextFunction) {
 
 // Handle errors with the error handler
 express_app.use(function(err: createHttpError.HttpError, req: Request, res: Response, next: NextFunction) {
-  // Set the error code
-  res.status(err.status || 500);
-  // Respond with a static error page (404 or 500)
-  res.sendFile(`error/${err.status}.html`, { root: __dirname });
+  res.status(err.status || 500); // Set the error code
+  res.sendFile(`error/${err.status}.html`, { root: __dirname }); // Respond with a static error page (404 or 500)
 });
 
-/**
- *  HTTPS Server Function Definitions
- */
+
+// ############### HTTPS Server Function Definitions ###############
 
 /**
  * Creates a HTTPS server and attaches the Express app to it.
@@ -163,7 +154,6 @@ function handleListening() {
   Hold CTRL + C to stop the server.\n\n `
   );
 }
-
 
 express_app.set('port', port);
 https_server.listen(port);
