@@ -3,7 +3,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-    entry: './src/index.tsx', // Update the entry point to src/index.ts
+    entry: './src/client/index.ts', // Update the entry point to src/index.ts
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'bundle.js',
@@ -32,13 +32,13 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: './src/index.html', // Update the template path to src/index.html
+            template: './src/client/index.html', // Update the template path to src/index.html
         }),
     ],
     devServer: {
         hot: false,
         liveReload: true,
-        watchFiles: ['src/**/*'],
+        watchFiles: ['src/client/**/*'],
         host: 'localhost',
         port: 3030,
     },
