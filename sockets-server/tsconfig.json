@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+      "target": "ES6",
+      "strict": true,
+      "noFallthroughCasesInSwitch": true,
+      "module": "NodeNext",
+      "jsx": "react-jsx",
+      "esModuleInterop": true,
+      "sourceMap": true,
+      "allowJs": true,
+      "lib": [
+        "ES2017",
+        "dom"
+      ],
+      "outDir": "./dist",
+      "rootDir": "src",
+      "moduleResolution": "nodenext",
+    },
+    "exclude": [
+    "node_modules",
+    "*.config.js",
+    "src/tests/**/*",
+    "dist/**/*",
+  ],
+  "include": ["src/server/**/*", "src/client/**/*"]
+}
