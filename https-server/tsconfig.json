@@ -22,5 +22,5 @@
     "src/tests/**/*",
     "dist/**/*",
   ],
-  "include": ["src/server/**/*"]
+  "include": ["src/server/**/*", "src/client/**/*"]
 }
