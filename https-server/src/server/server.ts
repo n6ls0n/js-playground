@@ -3,20 +3,10 @@
 
 // ############### Types ###############
 
-type Protocol = 'https';
 type ServerConfig = {
-  protocol: Protocol,
   key: Buffer,
   cert: Buffer,
 };
-
-// ############### Logging ###############
-
-import dotenv from 'dotenv';
-import debug from 'debug';
-
-dotenv.config();
-debug.enable(process.env.DEBUG || '');
 
 // ############### Imports ###############
 
@@ -26,45 +16,47 @@ import express, { Request, Response, NextFunction, Application } from 'express';
 import logger from 'morgan';
 import * as https from 'https';
 import { createServer } from 'https';
-import createError from 'http-errors';
+import { fileURLToPath } from 'url';
+import path, { dirname, join} from 'path';
 
 // ############### SSL Setup ###############
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const ssl_folder = join(__dirname, '..', 'ssl_certs');
+const key_path = join(ssl_folder, 'localhost.key');
+const cert_path = join(ssl_folder, 'localhost.crt');
 
-import path from 'path';
-const ssl_folder = path.join(__dirname, 'ssl_certs');
-const key_path = path.join(ssl_folder, 'localhost.key');
-const cert_path = path.join(ssl_folder, 'localhost.crt');
 
-
-// ############### Server Initialization ###############
+// // ############### Server Initialization ###############
 
 const express_app = express(); // Create an Express app
 const port = 3000;
 express_app.set('port', port);
-const public_dir = __dirname; // Set the public directory to serve from
 const config: ServerConfig = {
-  protocol: 'https',
   key: fs.readFileSync(key_path),
   cert: fs.readFileSync(cert_path),
 };
 
+console.log(__dirname);
+console.log(__filename);
+console.log(ssl_folder);
+
 // ############### Express Setup ###############
 
 express_app.use(logger('dev'));
+
+// Serve static files from the 'public' directory
+express_app.use(express.static(join(__dirname, '..')));
+
+// Serve the index.html file for the root route
+express_app.get('/', function(req: Request, res: Response) {
+  res.sendFile(join(__dirname, '..', 'index.html'));
+});
+
+// Handle 404 errors using the default Express error handler
 express_app.use(function(req: Request, res: Response, next: NextFunction) {
-  if (res.headersSent) {
-    next(createError(404, "This page doesn't exist!"));
-  } else {
-    next();
-  }
+  res.status(404).send('Not Found');
 });
-
-// Handle errors with the error handler
-express_app.use(function(err: any, req: Request, res: Response, next: NextFunction) {
-  res.status(err.status || 500); // Set the error code
-  res.sendFile(`error/${err.status}.html`, { root: __dirname }); // Respond with a static error page (404 or 500)
-});
-
 
 // ############### HTTPS Server Function Definitions ###############
 
@@ -77,7 +69,6 @@ function createHttpsServer(express_app: Application): https.Server {
     process.exit(1);
   }
 }
-
 
 function handleError(error: NodeJS.ErrnoException) {
   if (error.syscall !== 'listen') {
@@ -112,23 +103,15 @@ function handleListening() {
          * both cases.
          */
         if (details.family.toString().endsWith('4')) {
-          interfaces.push(`-> ${config.protocol}://${details.address}:${port}/`);
+          interfaces.push(`-> https://${details.address}:${port}/`);
+          console.log(interfaces.join('\n'));
         }
       });
     }
   });
-  debug(
-    `  ** Serving from the ${public_dir}/ directory. **
-
-  App available in your browser at:
-
-    ${interfaces.join('\n    ')}
-
-  Hold CTRL + C to stop the server.\n\n `
-  );
 }
 
 const https_server = createHttpsServer(express_app); // Create a HTTPS server and attach the Express app
 https_server.listen(port);
-https_server.on('error', handleError);
-https_server.on('listening', handleListening);
+https_server.on('error', handleError); // Used to handle errors during server start
+https_server.on('listening', handleListening); // Used to handle successful server start
