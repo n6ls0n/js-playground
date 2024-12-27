@@ -9,40 +9,28 @@ type ServerConfig = {
   key: Buffer,
   cert: Buffer,
 };
-type NetworkInterfaceInfo = {
-  address: string;
-  netmask: string;
-  family: string;
-  mac: string;
-  internal: boolean;
-  cidr: string;
-  scopeid?: number;
-};
-
-type NetworkInterfaces = {
-  [key: string]: NetworkInterfaceInfo[];
-};
-
 
 // ############### Logging ###############
 
-require('dotenv').config();
-const debug = require('debug')(process.env.DEBUG);
+import dotenv from 'dotenv';
+import debug from 'debug';
 
+dotenv.config();
+debug.enable(process.env.DEBUG || '');
 
 // ############### Imports ###############
 
-const networkInterfaces: NetworkInterfaces = require('os').networkInterfaces(); // Get network interfaces for this machine
-const fs = require('fs');
-const express = require('express');
-const logger = require('morgan');
+import { networkInterfaces, NetworkInterfaceInfo } from 'os';
+import * as fs from 'fs';
+import express, { Request, Response, NextFunction, Application } from 'express';
+import logger from 'morgan';
 import * as https from 'https';
-import { Request, Response, NextFunction, Application } from 'express';
-import createHttpError from 'http-errors';
+import { createServer } from 'https';
+import createError from 'http-errors';
 
 // ############### SSL Setup ###############
 
-const path = require('path');
+import path from 'path';
 const ssl_folder = path.join(__dirname, 'ssl_certs');
 const key_path = path.join(ssl_folder, 'localhost.key');
 const cert_path = path.join(ssl_folder, 'localhost.crt');
@@ -51,8 +39,8 @@ const cert_path = path.join(ssl_folder, 'localhost.crt');
 // ############### Server Initialization ###############
 
 const express_app = express(); // Create an Express app
-const https_server = createHttpsServer(express_app); // Create a HTTPS server and attach the Express app
 const port = 3000;
+express_app.set('port', port);
 const public_dir = __dirname; // Set the public directory to serve from
 const config: ServerConfig = {
   protocol: 'https',
@@ -60,19 +48,19 @@ const config: ServerConfig = {
   cert: fs.readFileSync(cert_path),
 };
 
-
 // ############### Express Setup ###############
 
-express_app.use(logger('dev')); // Log activity to the console
-express_app.use(express.static(public_dir)); // Serve static files from the script directory
-
-// Catch 404 errors and forward them to error handler
+express_app.use(logger('dev'));
 express_app.use(function(req: Request, res: Response, next: NextFunction) {
-  next(createHttpError(404));
+  if (res.headersSent) {
+    next(createError(404, "This page doesn't exist!"));
+  } else {
+    next();
+  }
 });
 
 // Handle errors with the error handler
-express_app.use(function(err: createHttpError.HttpError, req: Request, res: Response, next: NextFunction) {
+express_app.use(function(err: any, req: Request, res: Response, next: NextFunction) {
   res.status(err.status || 500); // Set the error code
   res.sendFile(`error/${err.status}.html`, { root: __dirname }); // Respond with a static error page (404 or 500)
 });
@@ -80,34 +68,17 @@ express_app.use(function(err: createHttpError.HttpError, req: Request, res: Resp
 
 // ############### HTTPS Server Function Definitions ###############
 
-/**
- * Creates a HTTPS server and attaches the Express app to it.
- *
- * @param {Application} express_app - The Express app to attach to the server.
- * @returns {https.Server} The HTTPS server.
- * @throws {Error} If there is an error creating the server.
- */
 function createHttpsServer(express_app: Application): https.Server {
   try {
-    const server = require(config.protocol).createServer({key: config.key, cert: config.cert}, express_app);
+    const server = createServer({ key: config.key, cert: config.cert }, express_app);
     return server;
-  } catch(e) {
+  } catch (e) {
     console.error(e);
     process.exit(1);
   }
 }
 
-/**
- * Handle errors from the HTTPS server.
- *
- * This function is called when the HTTPS server encounters an error
- * while listening on a port. If the error is not a listen error, it
- * is re-thrown. If the error is a listen error, the function prints
- * an error message (depending on the error code) and exits the
- * process with a status code of 1.
- *
- * @param {NodeJS.ErrnoException} error - the error from the HTTPS server.
- */
+
 function handleError(error: NodeJS.ErrnoException) {
   if (error.syscall !== 'listen') {
     throw error;
@@ -128,21 +99,23 @@ function handleError(error: NodeJS.ErrnoException) {
 }
 
 function handleListening() {
-  const address = https_server.address();
+  const network_interfaces: NodeJS.Dict<NetworkInterfaceInfo[]> = networkInterfaces();
   const interfaces: string[] = [];
   // dev holds all the network interfaces on which the server is listening
   // details holds all the details for each object on that interface
-  Object.keys(networkInterfaces).forEach(function(dev) {
-    networkInterfaces[dev].forEach(function(details) {
-      /**
-       * Node v. 18+ returns a number (4, 6) for family;
-       * earlier versions returned IPv4 or IPv6. This handles
-       * both cases.
-       */
-      if (details.family.toString().endsWith('4')) {
-        interfaces.push(`-> ${config.protocol}://${details.address}:${port}/`);
-      }
-    });
+  Object.keys(network_interfaces).forEach(function(dev) {
+    if (network_interfaces[dev]) {
+      network_interfaces[dev].forEach(function(details) {
+        /**
+         * Node v. 18+ returns a number (4, 6) for family;
+         * earlier versions returned IPv4 or IPv6. This handles
+         * both cases.
+         */
+        if (details.family.toString().endsWith('4')) {
+          interfaces.push(`-> ${config.protocol}://${details.address}:${port}/`);
+        }
+      });
+    }
   });
   debug(
     `  ** Serving from the ${public_dir}/ directory. **
@@ -155,7 +128,7 @@ function handleListening() {
   );
 }
 
-express_app.set('port', port);
+const https_server = createHttpsServer(express_app); // Create a HTTPS server and attach the Express app
 https_server.listen(port);
 https_server.on('error', handleError);
 https_server.on('listening', handleListening);
