@@ -3,7 +3,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-    entry: './src/client/index.ts', // Update the entry point to src/index.ts
+    entry: './src/client/index.ts',
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'bundle.js',
@@ -28,18 +28,26 @@ module.exports = {
         noParse: [/jest\.config\.js/],
     },
     resolve: {
-        extensions: ['.ts', '.js', '.tsx'], // Add TypeScript file extension to resolve
+        extensions: ['.ts', '.js', '.tsx'],
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: './src/client/index.html', // Update the template path to src/index.html
+            template: './src/client/index.html',
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: 'src/server/ssl_certs',
+                    to: 'ssl_certs'
+                },
+            ],
         }),
     ],
-    devServer: {
-        hot: false,
-        liveReload: true,
-        watchFiles: ['src/client/**/*'],
-        host: 'localhost',
-        port: 3030,
-    },
+    // devServer: {
+    //     hot: false,
+    //     liveReload: true,
+    //     watchFiles: ['src/client/**/*'],
+    //     host: 'localhost',
+    //     port: 3000,
+    // },
 };
