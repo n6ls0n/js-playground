@@ -48,11 +48,4 @@ module.exports = {
             ],
         }),
     ],
-    // devServer: {
-    //     hot: false,
-    //     liveReload: true,
-    //     watchFiles: ['src/client/**/*'],
-    //     host: 'localhost',
-    //     port: 3000,
-    // },
 };
