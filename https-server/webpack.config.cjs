@@ -41,6 +41,10 @@ module.exports = {
                     from: 'src/server/ssl_certs',
                     to: 'ssl_certs'
                 },
+                {
+                    from: '.env',
+                    to: '.'
+                },
             ],
         }),
     ],
