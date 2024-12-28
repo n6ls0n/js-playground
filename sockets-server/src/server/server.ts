@@ -114,11 +114,11 @@ https_server.on('error', handleError); // Used to handle errors during server st
 https_server.on('listening', handleListening); // Used to handle successful server start
 
 // ############### Socket Server Setup ###############
-const socket_server = new Server(https_server);
+const socket_server: Server = new Server(https_server);
 
 socket_server.on('connection', (socket) => {
   console.log('A user connected');
-  socket.on('disconnect', () => {
+  socket.on('disconnect', function() {
     console.log('User disconnected');
   });
 });
