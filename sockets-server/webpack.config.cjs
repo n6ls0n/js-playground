@@ -12,12 +12,12 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.(ts|tsx)$/, // Add a rule to handle TypeScript files
+                test: /\.(ts|tsx)$/,
                 use: 'ts-loader',
                 exclude: /node_modules/,
             },
             {
-                test: /\.html$/, // Add a rule to handle HTML files
+                test: /\.html$/,
                 use: 'html-loader',
             },
             {
@@ -30,10 +30,14 @@ module.exports = {
     },
     resolve: {
         extensions: ['.ts', '.js', '.tsx'],
+        alias: {
+            'socket.io-client': 'socket.io-client/dist/socket.io.js',
+        },
     },
     plugins: [
         new HtmlWebpackPlugin({
             template: './src/client/index.html',
+            inject: 'body',
         }),
         new CopyWebpackPlugin({
             patterns: [
@@ -48,4 +52,5 @@ module.exports = {
             ],
         }),
     ],
+    devtool: 'source-map',
 };
