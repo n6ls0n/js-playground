@@ -118,6 +118,9 @@ const socket_server = new Server(https_server);
 
 socket_server.on('connection', (socket) => {
   console.log('A user connected');
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
 });
 
 
