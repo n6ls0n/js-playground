@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const socket = io('https://localhost:3000'); // Replace with your server URL
+    const socket = io('https://localhost:3000');
 
     console.log('Socket.IO client initialized');
 
